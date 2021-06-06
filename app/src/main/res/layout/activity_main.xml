@@ -29,6 +29,7 @@
                 android:layout_centerHorizontal = "true"
                 android:layout_centerInParent="true"
                 android:id="@+id/image"
+                android:background="@drawable/background_image"
                 />
         </RelativeLayout>
 
