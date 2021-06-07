@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         Preview preview = new Preview.Builder().build();
         CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
-        ImageCapture imageCapture = new ImageCapture();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
         processCameraProvider.unbindAll();
         processCameraProvider.bindToLifecycle(this, cameraSelector,preview,imageCapture,imageAnalysis);
 
@@ -87,8 +87,10 @@ public class MainActivity extends AppCompatActivity {
             this.fragmentManager = fragmentManager;
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public void analyze(@NonNull ImageProxy image) {
+
             scanbarcode(image);
         }
     }
