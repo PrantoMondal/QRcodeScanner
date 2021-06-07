@@ -2,7 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/AndroidPractice" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/UnitConverterApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/AndroidPractice" vcs="" />
+    <mapping directory="$PROJECT_DIR$/UnitConverterApp" vcs="" />
   </component>
 </project>
