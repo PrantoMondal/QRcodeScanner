@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private PreviewView previewView;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,11 +57,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    ProcessCameraProvider processCameraProvider = (ProcessCameraProvider)cameraProviderFuture.get();
+                    ProcessCameraProvider processCameraProvider = (ProcessCameraProvider) cameraProviderFuture.get();
                     bindpreview(processCameraProvider);
-                }catch (ExecutionException e){
+                } catch (ExecutionException e) {
                     e.printStackTrace();
-                }catch (InterruptedException e){
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
@@ -76,15 +75,18 @@ public class MainActivity extends AppCompatActivity {
         CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
         ImageCapture imageCapture = new ImageCapture.Builder().build();
         processCameraProvider.unbindAll();
-        processCameraProvider.bindToLifecycle(this, cameraSelector,preview,imageCapture,imageAnalysis);
+        processCameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture, imageAnalysis);
 
     }
-    public class MyImageAnalyzer implements ImageAnalysis.Analyzer{
+
+    public class MyImageAnalyzer implements ImageAnalysis.Analyzer {
         private FragmentManager fragmentManager;
+        private bottom_dialog bd;
 
 
-        public MyImageAnalyzer(FragmentManager fragmentManager){
+        public MyImageAnalyzer(FragmentManager fragmentManager) {
             this.fragmentManager = fragmentManager;
+            bd = new bottom_dialog();
         }
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -93,72 +95,75 @@ public class MainActivity extends AppCompatActivity {
 
             scanbarcode(image);
         }
-    }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void scanbarcode(ImageProxy image) {
 
-        @SuppressLint("UnsafeOptInUsageError") Image image1 = image.getImage();
-        assert image != null;
-        InputImage inputImage = InputImage.fromMediaImage(image1,image.getImageInfo().getRotationDegrees());
-        BarcodeScannerOptions options =
-                new BarcodeScannerOptions.Builder()
-                        .setBarcodeFormats(
-                                Barcode.FORMAT_QR_CODE,
-                                Barcode.FORMAT_AZTEC)
-                        .build();
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        private void scanbarcode(ImageProxy image) {
 
-        BarcodeScanner scanner = BarcodeScanning.getClient(options);
-        Task<List<Barcode>> result = scanner.process(inputImage)
-                .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
-                    @Override
-                    public void onSuccess(List<Barcode> barcodes) {
-                       readerBarcodeData(barcodes);
+            @SuppressLint("UnsafeOptInUsageError") Image image1 = image.getImage();
+            assert image != null;
+            InputImage inputImage = InputImage.fromMediaImage(image1, image.getImageInfo().getRotationDegrees());
+            BarcodeScannerOptions options =
+                    new BarcodeScannerOptions.Builder()
+                            .setBarcodeFormats(
+                                    Barcode.FORMAT_QR_CODE,
+                                    Barcode.FORMAT_AZTEC)
+                            .build();
 
-                        // Task completed successfully
-                        // ...
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Task failed with an exception
-                        // ...
-                    }
-                })
-                .addOnCompleteListener(new OnCompleteListener<List<Barcode>>() {
-                    @Override
-                    public void onComplete(@NonNull Task<List<Barcode>> task) {
-                        image.close();
-                    }
-                });
+            BarcodeScanner scanner = BarcodeScanning.getClient(options);
+            Task<List<Barcode>> result = scanner.process(inputImage)
+                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
+                        @Override
+                        public void onSuccess(List<Barcode> barcodes) {
+                            readerBarcodeData(barcodes);
 
-    }
+                            // Task completed successfully
+                            // ...
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Task failed with an exception
+                            // ...
+                        }
+                    })
+                    .addOnCompleteListener(new OnCompleteListener<List<Barcode>>() {
+                        @Override
+                        public void onComplete(@NonNull Task<List<Barcode>> task) {
+                            image.close();
+                        }
+                    });
 
-    private void readerBarcodeData(List<Barcode> barcodes) {
-        for (Barcode barcode: barcodes) {
-            Rect bounds = barcode.getBoundingBox();
-            Point[] corners = barcode.getCornerPoints();
-
-            String rawValue = barcode.getRawValue();
-
-            int valueType = barcode.getValueType();
-            // See API reference for complete list of supported types
-            switch (valueType) {
-                case Barcode.TYPE_WIFI:
-                    String ssid = barcode.getWifi().getSsid();
-                    String password = barcode.getWifi().getPassword();
-                    int type = barcode.getWifi().getEncryptionType();
-                    break;
-                case Barcode.TYPE_URL:
-                    String title = barcode.getUrl().getTitle();
-                    String url = barcode.getUrl().getUrl();
-                    break;
-            }
         }
 
+        private void readerBarcodeData(List<Barcode> barcodes) {
+            for (Barcode barcode : barcodes) {
+                Rect bounds = barcode.getBoundingBox();
+                Point[] corners = barcode.getCornerPoints();
 
+                String rawValue = barcode.getRawValue();
+
+                int valueType = barcode.getValueType();
+                // See API reference for complete list of supported types
+                switch (valueType) {
+                    case Barcode.TYPE_WIFI:
+                        String ssid = barcode.getWifi().getSsid();
+                        String password = barcode.getWifi().getPassword();
+                        int type = barcode.getWifi().getEncryptionType();
+                        break;
+                    case Barcode.TYPE_URL:
+                        if(!bd.isAdded()){
+                            bd.show(fragmentManager,"");
+                        }
+                            String title = barcode.getUrl().getTitle();
+                        String url = barcode.getUrl().getUrl();
+                        break;
+                }
+            }
+
+
+        }
     }
-
 
 }
