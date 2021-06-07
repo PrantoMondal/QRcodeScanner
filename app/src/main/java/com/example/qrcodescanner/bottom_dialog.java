@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import java.util.concurrent.Executors;
 public class bottom_dialog extends BottomSheetDialogFragment {
     private TextView title,link,btn_visit;
     private ImageView close;
+    private String fetchurl;
 
     @Nullable
     @Override
@@ -32,12 +34,14 @@ public class bottom_dialog extends BottomSheetDialogFragment {
         btn_visit = view.findViewById(R.id.visit);
         close = view.findViewById(R.id.close);
 
+        title.setText(fetchurl);
+
 
         btn_visit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent("android.intent.action.View");
-                intent.setData();
+                intent.setData(Uri.parse(fetchurl));
                 startActivity(intent);
             }
         });
@@ -51,7 +55,13 @@ public class bottom_dialog extends BottomSheetDialogFragment {
     }
     public void fetchurl(String url){
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Handler handler = new Handler()
+        Handler handler = new Handler(Looper.getMainLooper());
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                fetchurl = url;
+            }
+        });
     }
 
 }
